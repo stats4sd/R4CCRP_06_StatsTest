@@ -61,12 +61,7 @@ Before any formal hypothesis test, always look at summary statistics and plots s
 
 And this is the perfect chance to apply and recap all your newly acquired ggplot2! 
 
-*Continue from the code below to match embedded output, to show the means and standard deviations of `LANDAREA` by `GENDERHH`, and the number of observations in each group*
-
-**Summary Statistics of Attractiveness by Gender**
-```{r summarystats, exercise=TRUE,error=TRUE}
-
-```
+*In the code box below write the code below to match embedded output, to show the means and standard deviations of `LANDAREA` by `GENDERHH`, and the number of observations in each group*
 
 
 ```{r,echo=FALSE,message=FALSE}
@@ -75,6 +70,11 @@ BeanSurvey %>%
     summarise(n=n(),mean=mean(LANDAREA,na.rm=T),sd=sd(LANDAREA,na.rm=T))
 ```
 
+
+**Summary Statistics of Attractiveness by Gender**
+```{r summarystats, exercise=TRUE,error=TRUE}
+
+```
 
 
 ```{r summarystats-solution}
@@ -117,10 +117,10 @@ BeanSurvey %>%
 
 Looking at the summary stats we can see that the average values are a little higher for male headed households on average as compared to female headed households.
 
-We can see from the boxplots and histograms that generally the distributions of landarea are shifted a little higher for the male headed households, which we can see from the higher shift in the median and quartiles making up the boxes. However, we also see that the distribution is skewed by some large values - most farmers have under 3 acres of land, but there are are a small number with much larger yields. 
+We can see from the boxplots and histograms that generally the distributions of landarea are shifted a little higher for the male headed households. The medians and quartiles making up the boxes are higher for male headed households. However, we also see that the distribution is skewed by some large values - most farmers have under 3 acres of land, but there are are a small number with much larger yields. 
 
 
-The plots and summary statistics suggests it looks like a reasonable hypothesis to suggest that male headed households have, on average, more land than female headed households. We can conduct a formal statistical significance test to see if there is sufficient evidence to confirm that hypothesis, or whether the differences which are observing in the data are no larger than we would expect to see by random chance.
+So from the plots and summary statistics suggests it looks like a reasonable hypothesis to suggest that male headed households have, on average, more land than female headed households. We can conduct a formal statistical significance test to see if there is sufficient evidence to confirm that hypothesis, or whether the differences which are observing in the data are no larger than we would expect to see by random chance.
 
 ### Running the t-test
 
@@ -132,7 +132,7 @@ The structure of the `t.test` function is that we provide the name of our numeri
 t.test(LANDAREA~GENDERHH,data=BeanSurvey)
 ```
 
-In this case we would conclude, from the p-value of 0.296 that there is no evidence to be able to conclude that there is a significant difference in the mean values of land area based on gender of head of household.
+In this case we would conclude, from the p-value of 0.296 that there is not enough evidence to say that there is a significant difference in the mean values of land area based on gender of head of household.
 
 The output also shows us the t-statistic, degrees of freedom and a 95% confidence interval around the difference in the means.
 
@@ -211,7 +211,7 @@ And here we obtain a similar result with a p-value of p=0.3469 suggesting we hav
 Note in the output that the hypothesis is described in the output as "location shift" - this is another way of considering the 'mean of the ranks'. Another way of framing it for this specific test would be that our significant result suggests that males are more likely to have incomes which are higher than the median income. 
 Because of the existence of ties, the Wilcoxon test does not directly compare the median values. In the video, you will have seen an example where the medians of the two groups are the same but the Wilcoxon test provides a significant result.
 
-You can see a better idea of how the Wilcoxon test works by using the `rank()` function to rank the values and then calculate the mean of the ranks and then pipe into a plot or summary statistics.
+You can see a better idea of what the Wilcoxon test is actually doing by exploring a little using the `rank()` function to rank the values and then calculate the mean of the ranks and then pipe into a plot or summary statistics.
 
 ```{r rank2,exercise=TRUE}
 BeanSurvey %>%
@@ -236,7 +236,7 @@ BeanSurvey %>%
       summarise(mean(land_rank))
 ```
 
-The smallest value is ranked as 1, the second smallest value ranked as 2 and so on. When we compare the distribution of ranks we can see the ranks are a little higher (i.e. larger area) for the male headed households, but the difference is not large enough to conclude that this difference is larger than what we would see by chance.
+The smallest value is ranked as 1, the second smallest value ranked as 2 and so on. When we compare the distribution of ranks we can see the ranks are a little higher (i.e. larger area) for the male headed households, but again the difference is not large enough to conclude that this difference is larger than what we would see by chance.
 
 If you haven't come across it before, you can read more about the Wilcoxon rank sum test [here](https://www.stat.auckland.ac.nz/~wild/ChanceEnc/Ch10.wilcoxon.pdf). 
 
@@ -253,7 +253,7 @@ ggplot(data=BeanSurvey)+
   geom_boxplot(aes(y=BEANSPLANTED_SR,x=2))+
   scale_x_continuous(breaks=1:2,labels=c("LR","SR"))
 ```
-. We also had to use some different code to what we have seen previously. Because we have multiple variables for the groups, rather than one variable for the outcome and one variable for the grouping factor. So to make this plot I have set the aesthetics within the `geom_()` functions rather than in the `ggplot()` function. We can do this if we want to use different variables for different geometries. In both my calls to `geom_boxplot()` I am setting a constant fixed value for the x axis and then making sure I label this with the   
+We also had to use some different code to what we have seen previously. Because we have multiple variables for the groups, rather than one variable for the outcome and one variable for the grouping factor. So to make this plot I have set the aesthetics within the `geom_()` functions rather than in the `ggplot()` function. We can do this if we want to use different variables for different geometries. In both my calls to `geom_boxplot()` I am setting a constant fixed value for the x axis and then making sure I label this with the   
 
 Although our boxplots look similar to what we have seen before when comparing male to female headed households there is a key difference here - the same farmers have observations in both the long rains and the short rains.
 
@@ -264,7 +264,7 @@ BeanSurvey %>%
   summarise(mean(BEANSPLANTED_LR,na.rm=T),sd(BEANSPLANTED_LR,na.rm=T),
             mean(BEANSPLANTED_SR,na.rm=T),sd(BEANSPLANTED_SR,na.rm=T))
 ```
-With the paired t-test we also using the same `t.test` function, but with a slightly different way of specifying the inputs. It is also not possible to pipe into the paired t-test since none of the arguments are the `data` - we need the two variable names.
+With the paired t-test we also using the same `t.test` function, but with a slightly different way of specifying the inputs. 
 
 
 ```{r paired, exercise=TRUE}
@@ -272,7 +272,9 @@ t.test(BeanSurvey$BEANSPLANTED_LR,BeanSurvey$BEANSPLANTED_SR,paired=TRUE)
 ```
 In this case we see that, although we do so more beans planted on average in the long rains, by 1.3kg, we do not have enough evidence at the 5% significance level to conclude that this difference is statistically significant (p=0.0978).
 
-Again, we may be concerned about the normality assumption. With the paired t-test what we care about is not the distribution of he individual variables but the distribution of the differences within each farmer. So we can use `mutate` to calculate the column of differences and then look at a histogram.
+It is also not possible to pipe into the paired t-test since none of the arguments are the `data` - we need the two variable names.
+
+Again, we may be concerned about the normality assumption. With the paired t-test what we care about is not the distribution of he individual variables but the distribution of the differences within each farmer. So we can use `mutate` to calculate a column of differences and then look at a histogram.
 
 ```{r pairhist, exercise=TRUE}
 BeanSurvey %>%
@@ -281,7 +283,7 @@ BeanSurvey %>%
       geom_histogram()
 ```
 
-We may be concerned that results are being skewed by the two very high values, so perhaps we could also try the Wilcoxan test again. Luckily this works exactly like before. The `paired` code for `wilcox.test` is the same as the `paired` code for `t.test`, all we need to do is change the function.
+We may be concerned that results are being skewed by the two very high values, and again we don't have a very large data set so we cannot quite rely on the central limit theorem. So perhaps we could also try the Wilcoxan test again. And, luckily this works exactly like before following a very similar pattern. The `paired` code for `wilcox.test` is the same as the `paired` code for `t.test`, all we need to do is change the function.
 
 
 ```{r pairwilcox, exercise=TRUE}
@@ -293,7 +295,7 @@ The paired t-test works in this specific scenario, but there are more complicate
 
 Particularly when we consider having more than two matched observations (e.g. data taken over multiple time points); experimental designs with blocking; or clustered sampling in surveys. 
 
-In this case the t-test is not at all a sufficient method for analysis! So, you will have to start learning more about statistical modeling to do a good job of analysing your data - and matching the appropriate model structure to your data structure.
+In these cases the t-test is not at all a sufficient method for analysis! So, you will have to start learning more about statistical modeling to do a good job of analysing your data - and matching the appropriate model structure to your data structure.
 
 
 
@@ -366,18 +368,17 @@ In this case, the row percentages would be likely much more helpful to us than t
 
 To make a plot of these results, we would probably want to produce some bar charts. There are a few different ways of making bar charts we learnt about earlier in the course - either stacking or using facets. 
 
-*See if you can replicate the plot below, or choose to produce a different graph which shows the relationship between `Education` and `ApproveTrump`.*
-
-```{r ggbar1,exercise=TRUE}
-
-```
-
-
+*See if you can replicate the plot below, or choose to produce a different graph which shows the relationship between `Education` and `ApproveTrump`. Make sure to modify the scale on the x axis as well to make it more readable!*
 ```{r ggbar0,echo=FALSE}
 ggplot(data=BeanSurvey,aes(group=SELLBEANS,fill=SELLBEANS,y=VILLAGE))+
   geom_bar(position="fill")+
    scale_x_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1),labels=c("0%","20%","40%","60%","80%","100%"))
 ```
+
+```{r ggbar1,exercise=TRUE}
+
+```
+
 
 ```{r ggbar1-solution}
 ggplot(data=BeanSurvey,aes(group=SELLBEANS,fill=SELLBEANS,y=VILLAGE))+
@@ -456,16 +457,35 @@ We need to have a sufficient number of observations in all possible combinations
 In this case, we have three options for how to deal with it:  
 1. Use a different variable - like gender of household head. In this case we have it already in our data, but if we did not we could create this using `mutate` and then the `recode` function which is very useful to know about.
 
+In the recode function we first provide the variable we are recoding, then we specify how we want to recode it following the pattern `"existing value" = "new value"`. So any of the female headed categories I recode into the same new category. Looking into the data I discovered that the "other" household was male headed. But if I was recoding the data without knowing this, it is probably a more sensible move to choose to remove this value using a `filter`.
+
 ```{r chi_q2,exercise=TRUE}
 tabyl1<-BeanSurvey %>%
-  mutate(HHTYPE2 = dplyr::recode(HHTYPE,
+  mutate(HHTYPE2 = recode(HHTYPE,
                           "Female headed absentee husband"="Female headed",
                           "Female headed, no husband"="Female headed",
                           "Male headed more than one wife"="Male headed",
                           "Male headed one wife"="Male headed",
-                          "Single man"="Male headed",
-                          "Other"="Male headed")) %>%
+                          "Single man"="Male headed")) %>%
+  filter(HHTYPE2!="Other") %>%
   tabyl(HHTYPE2,SELLBEANS)
+
+
+```
+
+When using `janitor` and the `tabyl` functions it may often make sense to save the initial `tabyl` as an object. This way we can then move to the subsequent steps, of looking at percentages and conducting hypothesis tests, without replicating the data manipulation steps every time
+
+```{r chi_q99,exercise=TRUE}
+tabyl1<-BeanSurvey %>%
+  mutate(HHTYPE2 = recode(HHTYPE,
+                          "Female headed absentee husband"="Female headed",
+                          "Female headed, no husband"="Female headed",
+                          "Male headed more than one wife"="Male headed",
+                          "Male headed one wife"="Male headed",
+                          "Single man"="Male headed")) %>%
+  filter(HHTYPE2!="Other") %>%
+  tabyl(HHTYPE2,SELLBEANS)
+
 
 tabyl1
 
@@ -475,6 +495,8 @@ tabyl1 %>%
 tabyl1 %>%
     chisq.test()
 ```
+
+
 
 2. Only include the two common `HHTYPES` which are "Female headed, no husband", and "Male headed one wife". We could restrict this using `filter`
 
@@ -505,7 +527,7 @@ BeanSurvey %>%
 ```
 Whichever method we used here we reached the same conclusion - no evidence of relationship between household type and selling beans. But notice that the hypotheses for options 1 and 2 are different. In option one we are comparing differences only in the gender of the head, not consdiering any of the other household composition that exists in the `HHTYPE` variable. And in option 2 we are only comparing the two specific household types.
 
-Unlike with the `t-test()` we do not change the hypothesis we are testing by using the Fisher test instead. However this test is a lot more computationally intenstive. With even a reasonably small dataset (200 or so observations) you may find that it takes some time for the computer to return the result. This is why the chi-square test is often preferred, since it is always very quick for the computer to calculate!
+Unlike with the `t-test()` we do not change the hypothesis we are testing by using the Fisher test instead. However this test is a lot more computationally intensive. With even a reasonably small dataset (200 or so observations) you may find that it takes some time for the computer to return the result. This is why the chi-square test is often preferred, since it is always very quick for the computer to calculate!
 
 
 
