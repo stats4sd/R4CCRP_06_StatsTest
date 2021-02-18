@@ -549,7 +549,16 @@ This is, of course, not just true of R but of any analysis software. However wit
 
 When doing a PhD, it is also extremely unlikely that a simple hypothesis test will be sufficient for your analysis. It is likely you will need to be doing some statistical modelling, to better explain the patterns and trends in your data. We will learn about this in the next module!
 
+## Exercises
 
+In this module the exercises are a little different. It is now up to you to use RStudio to complete the exercises on your own computer.
+
+You can download the files you need [by clicking on this link here](https://github.com/stats4sd/R4CCRP_06_StatsTest/blob/main/Module%206%20Exercises.zip?raw=true)
+
+
+Make sure you unzip these into a new folder, and then start a new project file based on that folder, like we learnt in the previous module.
+
+You may need to install any of the packages used before proceeding - make sure you have these installed and loaded, by running the first code chunk, before you try to start solving any of the questions!
 
 ## References  
 
