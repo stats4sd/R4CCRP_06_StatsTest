@@ -16,7 +16,7 @@ library(learnr)
 library(tidyverse)
 library(janitor)
 library(DT)
-library(car)
+library(knitr)
 tutorial_options(exercise.timelimit = 10)
 
 BeanSurvey<-read.csv("bean_survey.csv")[,-1]
@@ -59,9 +59,9 @@ So, if we think back to our `BeanSurvey` dataset - we could compare whether the 
 
 Before any formal hypothesis test, always look at summary statistics and plots showing the relationship you are interested in.
 
-And this is the perfect chance to apply and recap all your newly acquired ggplot2! 
+And this is the perfect chance to apply and recap all your newly acquired ggplot2 and dplyr skills! 
 
-*In the code box below write the code below to match embedded output, to show the means and standard deviations of `LANDAREA` by `GENDERHH`, and the number of observations in each group*
+*In the code box below write the code to match the embedded output, to show the means and standard deviations of `LANDAREA` by `GENDERHH`, and the number of observations in each group*
 
 
 ```{r,echo=FALSE,message=FALSE}
@@ -71,7 +71,7 @@ BeanSurvey %>%
 ```
 
 
-**Summary Statistics of Attractiveness by Gender**
+**Summary Statistics of Land Area by Gender of Household head**
 ```{r summarystats, exercise=TRUE,error=TRUE}
 
 ```
@@ -83,11 +83,8 @@ BeanSurvey %>%
     summarise(n=n(),mean=mean(LANDAREA,na.rm=T),sd=sd(LANDAREA,na.rm=T))
 ```
 
-*Now match embedded output, this time to show histograms of `LANDAREA` split by `GENDERHH`, and then some boxplots*
+*Now match embedded output, this time to show histograms and boxplots of `LANDAREA` split by `GENDERHH`*
 **Histograms of Long Rains Yield by VILLAGE**
-
-
-
 ```{r,echo=FALSE,message=FALSE}
 BeanSurvey %>% 
   ggplot(aes(x=LANDAREA))+
@@ -105,10 +102,9 @@ BeanSurvey %>%
 
 ```{r summaryplot-solution}
 BeanSurvey %>% 
-  mutate(YIELD_LR =BEANSHARVESTED_LR/LANDAREA ) %>%
-  ggplot(aes(x=YIELD_LR))+
+  ggplot(aes(x=LANDAREA))+
     geom_histogram()+
-      facet_wrap(~VILLAGE)
+      facet_wrap(~GENDERHH)
 
 BeanSurvey %>% 
   ggplot(aes(y=LANDAREA,x=GENDERHH))+
@@ -117,10 +113,10 @@ BeanSurvey %>%
 
 Looking at the summary stats we can see that the average values are a little higher for male headed households on average as compared to female headed households.
 
-We can see from the boxplots and histograms that generally the distributions of landarea are shifted a little higher for the male headed households. The medians and quartiles making up the boxes are higher for male headed households. However, we also see that the distribution is skewed by some large values - most farmers have under 3 acres of land, but there are are a small number with much larger yields. 
+We can see from the boxplots and histograms that generally the distributions of landarea are shifted a little higher for the male headed households. The medians and quartiles making up the boxes are higher for male headed households. However, we also see that the distribution is skewed by some large values - most farmers have under 3 acres of land, but there are a small number with much larger yields. 
 
 
-So from the plots and summary statistics suggests it looks like a reasonable hypothesis to suggest that male headed households have, on average, more land than female headed households. We can conduct a formal statistical significance test to see if there is sufficient evidence to confirm that hypothesis, or whether the differences which are observing in the data are no larger than we would expect to see by random chance.
+So from the plots and summary statistics it looks like male headed households have, on average, more land than female headed households. We can conduct a formal statistical significance test to see if there is sufficient evidence to confirm that hypothesis, or whether the observed differences in the data are no larger than those we would expect to see by random chance.
 
 ### Running the t-test
 
@@ -132,7 +128,7 @@ The structure of the `t.test` function is that we provide the name of our numeri
 t.test(LANDAREA~GENDERHH,data=BeanSurvey)
 ```
 
-In this case we would conclude, from the p-value of 0.296 that there is not enough evidence to say that there is a significant difference in the mean values of land area based on gender of head of household.
+In this case we would conclude, from the p-value of 0.2496 that there is not enough evidence to say that there is a significant difference in the mean values of land area based on gender of head of household.
 
 The output also shows us the t-statistic, degrees of freedom and a 95% confidence interval around the difference in the means.
 
@@ -141,12 +137,12 @@ It's worth reminding yourself of how p-values work - they are very commonly misu
 
 With the `t.test` function it is important to note that, unlike most of the functions we have used so far in this course the name of the data comes as the second argument *after* the formula. 
 
-We can use a pipe (`%>%`) to get from the data to the t-test, but we need to use it in a slightly different way. The pipe assumes the first argument of a function is the data, but we can override this. Within `t.test`, or any function where data is not the first argument, after the pipe we can include an argument `data= .`. The `.` denotes to inherit the data coming in from the previous line.
+We can use a pipe (`%>%`) to get from the data to the t-test, but we need to use it in a slightly different way. The pipe assumes the first argument of a function is the data, but we can override this. Within `t.test`, or any function where data is not the first argument, we need to include an argument `data= .` in a line of code following a pipe `%>%`. The `.` denotes to inherit the data coming in from the previous line.
 
 
 ```{r pipein, exercise=TRUE}
 BeanSurvey %>% 
-     t.test(YIELD_LR~VILLAGE,data=.)
+     t.test(LANDAREA~VILLAGE,data=.)
 
 ```
 And that's it! We shown you how to do a t-test in R...
@@ -180,7 +176,7 @@ We also have another assumption that we have approximate normality of the respon
 
 Again, Dr Nic, is on call with a video about this [here](https://www.youtube.com/watch?v=_YOr_yYPytM&ab_channel=DrNic%27sMathsandStats)
 
-It is usually worth checking the histogram to check that we have a roughly symmetrical distribution, which is unimodal. 
+It is usually worth checking the histogram to check that we have a roughly symmetrical distribution which is unimodal. 
 
 There are formal hypothesis tests we could use to 'test' normality, that some people might teach you about. But these are completely useless within this context.
 
@@ -194,7 +190,7 @@ In this particular case we probably do not have enough data to be able to invoke
 
 A common solution to this problem would be to use a non-parametric test, like the Wilcoxon rank sum test, also known as the Mann-Whitney U test.
 
-Instead of testing whether the mean values differ between the groups, instead this considers whether the distribution of incomes is shifted for males as compared to females, rather than whether the mean value is different. 
+Instead of testing whether the mean values of land area differ between the groups, this considers whether the distribution of land area is shifted for male heads as compared to females, rather than whether the mean value is different. 
 
 This works by ranking the values in each group and comparing the average ranks in the two groups. This makes it robust to all sorts of strange looking distributions, because the maximum value can never be more than one unit higher than the next highest value. 
 
@@ -206,12 +202,26 @@ Luckily, within R, the code for `wilcox.test` function is almost identical to wh
   wilcox.test(LANDAREA~GENDERHH,data=BeanSurvey)
 ```
 
-And here we obtain a similar result with a p-value of p=0.3469 suggesting we have no evidence against the null hypothesis that distribution of land area for males is the same as incomes for females. So this provides further reinforcement of our initial conclusion from the t-test.  
+And here we obtain a similar result with a p-value of p=0.3469 suggesting we have no evidence against the null hypothesis that distribution of land area for male heads is the same as for female heads. So this provides further reinforcement of our initial conclusion from the t-test.  
 
-Note in the output that the hypothesis is described in the output as "location shift" - this is another way of considering the 'mean of the ranks'. Another way of framing it for this specific test would be that our significant result suggests that males are more likely to have incomes which are higher than the median income. 
-Because of the existence of ties, the Wilcoxon test does not directly compare the median values. In the video, you will have seen an example where the medians of the two groups are the same but the Wilcoxon test provides a significant result.
+The hypothesis is described in the output as "location shift" - this is another way of considering the 'mean of the ranks'. 
+
+Because of the existence of ties, the Wilcoxon test does not directly compare the median values, which is a common misconception. In the video, you will have seen an example where the medians of the two groups are the same but the Wilcoxon test provides a significant result.
 
 You can see a better idea of what the Wilcoxon test is actually doing by exploring a little using the `rank()` function to rank the values and then calculate the mean of the ranks and then pipe into a plot or summary statistics.
+
+The `rank()` function is quite simple, if we provide a vector of numbers it will give rank 1 to the lowest, 2 to the next lowest and so on.
+
+```{r ranksimple,exercise=TRUE}
+
+some_numbers<-c(45,1,100,8)
+
+some_numbers
+rank(some_numbers)
+
+```
+
+So we can add the ranks of `LANDAREA` into a new column of our data using `mutate` and then investigate the summary statistics on this new rank variable to get a better understanding of the comparison by made in the Wilcoxon test.
 
 ```{r rank2,exercise=TRUE}
 BeanSurvey %>%
@@ -242,39 +252,37 @@ If you haven't come across it before, you can read more about the Wilcoxon rank 
 
 ### Assumption 2: Independence
 
-Probably the most important assumption to consider is whether or not the observations are independent of each other in the two groups. The simplest example where this is not the case when we have paired data.
+Probably the most important assumption to consider is whether or not the observations are independent of each other in the two groups. The simplest example where this is not the case when we have paired data. In that scenario we would use a paired t-test, and this can also be conducted using `t.test()`. However we apply this function in quite a different way when we carry out the paired t-test, compared to the previous example we saw, when we applied an independent two-sample t-test.
 
 
-A good example of this would be if we were to compare beans planted in the short rains against beans planted in the long rains.
+A good example of this would be if we were to compare beans planted in the short rains against beans planted in the long rains. We can produce separate histograms or boxplots for the beans being planted in long rains, and beans being planted in short rains, using seperate calls to `ggplot()`. Because they are in different variables we cannot directly map them onto the same plot like we have seen before - we would need to do some additional data manipulation first. We will learn more about that in the final module of the course, which will make it a bit tidier, but producing two separate plots is still an effective way of exploring the data here.  
 
 ```{r pair1,exercise=TRUE ,echo=FALSE}
-ggplot(data=BeanSurvey)+
-  geom_boxplot(aes(y=BEANSPLANTED_LR,x=1))+
-  geom_boxplot(aes(y=BEANSPLANTED_SR,x=2))+
-  scale_x_continuous(breaks=1:2,labels=c("LR","SR"))
+ggplot(data=BeanSurvey,x=BEANSPLANTED_LR)+
+  geom_histogram()
+
+ggplot(data=BeanSurvey,x=BEANSPLANTED_SR)+
+  geom_histogram()
 ```
-We also had to use some different code to what we have seen previously. Because we have multiple variables for the groups, rather than one variable for the outcome and one variable for the grouping factor. So to make this plot I have set the aesthetics within the `geom_()` functions rather than in the `ggplot()` function. We can do this if we want to use different variables for different geometries. In both my calls to `geom_boxplot()` I am setting a constant fixed value for the x axis and then making sure I label this with the   
 
-Although our boxplots look similar to what we have seen before when comparing male to female headed households there is a key difference here - the same farmers have observations in both the long rains and the short rains.
-
-So while we can calculate mean and standard deviation values like before, we do not need to use `group_by` since the variables are different for each group. 
+And again, when we calculate mean and standard deviation values, we do not need to use group_by to see the differences between beans planted in long rain season and beans planted in short rain season. Since all the households have values for both variables, it’s not the households that define the groups, but the choice of variable. 
 
 ```{r summ_groups, exercise=TRUE}
 BeanSurvey %>%
-  summarise(mean(BEANSPLANTED_LR,na.rm=T),sd(BEANSPLANTED_LR,na.rm=T),
-            mean(BEANSPLANTED_SR,na.rm=T),sd(BEANSPLANTED_SR,na.rm=T))
+  summarise(LR_mean=mean(BEANSPLANTED_LR,na.rm=T),LR_sd=sd(BEANSPLANTED_LR,na.rm=T),
+            SR_mean=mean(BEANSPLANTED_SR,na.rm=T),SR_sd=sd(BEANSPLANTED_SR,na.rm=T))
 ```
-With the paired t-test we also using the same `t.test` function, but with a slightly different way of specifying the inputs. 
 
+When it come to now carrying out the hypothesis test through a paired t-test, we using the same `t.test` function, but with a slightly different way of specifying the inputs. 
 
 ```{r paired, exercise=TRUE}
 t.test(BeanSurvey$BEANSPLANTED_LR,BeanSurvey$BEANSPLANTED_SR,paired=TRUE)
 ```
-In this case we see that, although we do so more beans planted on average in the long rains, by 1.3kg, we do not have enough evidence at the 5% significance level to conclude that this difference is statistically significant (p=0.0978).
+In this case although we can see that on average 1.3kg more beans were planted in the long rains, we do not have enough evidence at the 5% significance level to conclude that this difference is statistically significant (p=0.0978).
 
-It is also not possible to pipe into the paired t-test since none of the arguments are the `data` - we need the two variable names.
+Note that this time, it is not possible to pipe into the paired t-test since none of the arguments are `data`, instead we need two supply two individual variables names. Lots of functions work with pipes, but not all!
 
-Again, we may be concerned about the normality assumption. With the paired t-test what we care about is not the distribution of he individual variables but the distribution of the differences within each farmer. So we can use `mutate` to calculate a column of differences and then look at a histogram.
+Again, we may be concerned about the normality assumption. With the paired t-test what we care about is not the distribution of the individual variables but the distribution of the differences within each household So we can use `mutate` to calculate a column of differences and then plot a histogram of the differences.
 
 ```{r pairhist, exercise=TRUE}
 BeanSurvey %>%
@@ -283,7 +291,7 @@ BeanSurvey %>%
       geom_histogram()
 ```
 
-We may be concerned that results are being skewed by the two very high values, and again we don't have a very large data set so we cannot quite rely on the central limit theorem. So perhaps we could also try the Wilcoxan test again. And, luckily this works exactly like before following a very similar pattern. The `paired` code for `wilcox.test` is the same as the `paired` code for `t.test`, all we need to do is change the function.
+We may be concerned that results are being skewed by the two very high values, and again we don't have a very large data set so we cannot quite rely on the central limit theorem. So perhaps we could also try the Wilcoxon test again. And, luckily this works exactly like before following a very similar pattern. The `paired` code for `wilcox.test` is the same as the `paired` code for `t.test`, all we need to do is change the function.
 
 
 ```{r pairwilcox, exercise=TRUE}
@@ -324,13 +332,13 @@ BeanSurvey %>%
 
 The first variable will always be placed in the rows of the table, and the second variable will be placed in the columns.
 
-Try to interpret those numbers from the frequency table output, and see if you think there is a pattern. It is hard! With cross-tabs it can be pretty difficult to work out if there is a pattern from just the numbers themselves. 
+Try to interpret those numbers from the frequency table output, and see if you think there is a pattern. It can sometimes be hard, especially if you have very uneven group sizes.
 
 So we often will also look at marginal percentages. That: is for each level of one variable what percentage of respondents fall in the levels of the second variable. 
 
 We refer to these as "row percentages" or "column percentages", depending on whether we are looking at the percentages within each row or percentages within each column. We can pipe the frequency table into the function `adorn_percentages` to investigate this.
 
-I.e. We have two possible questions:  "What percentage of people in Kimbugu sell beans?" This is the 'row percentage' because we are looking within education levels, and education is the row factor. The row percentage is the default option, so we don't need to add anything else to this function.
+I.e. We have two possible questions:  "What percentage of people in Kimbugu sell beans?" This is the 'row percentage' because we are looking within each village levels, and `VILLAGE` is the row factor. The row percentage is the default option, so we don't need to add anything else to this function.
 
 ```{r tabyl2,exercise=TRUE}
 
@@ -349,7 +357,7 @@ BeanSurvey %>%
 
 So we can see that, 54% of people in Kimbugu sell beans, and only 15% of people in Lwala sell beans.
 
-Or we could ask for "What percentage of people who sell beans live in Kimbugu". We need to add the argument "col" into the `adorn_percentages` function to obtain this.
+Or we could ask for "What percentage of people who sell beans live in Kimbugu". We need to add the argument "col" into the `adorn_percentages` function to obtain this, as it is called the "column" percentage. We are looking within the column factor, `SELLBEANS`
 
 ```{r tabyl4,exercise=TRUE}
 BeanSurvey %>%
@@ -368,7 +376,7 @@ In this case, the row percentages would be likely much more helpful to us than t
 
 To make a plot of these results, we would probably want to produce some bar charts. There are a few different ways of making bar charts we learnt about earlier in the course - either stacking or using facets. 
 
-*See if you can replicate the plot below, or choose to produce a different graph which shows the relationship between `Education` and `ApproveTrump`. Make sure to modify the scale on the x axis as well to make it more readable!*
+*See if you can replicate the plot below, or choose to produce a different graph which shows the relationship between `VILLAGE` and `SELLBEANS`. Make sure to modify the scale on the x axis as well to make it more readable!*
 ```{r ggbar0,echo=FALSE}
 ggplot(data=BeanSurvey,aes(group=SELLBEANS,fill=SELLBEANS,y=VILLAGE))+
   geom_bar(position="fill")+
@@ -460,7 +468,7 @@ In this case, we have three options for how to deal with it:
 In the recode function we first provide the variable we are recoding, then we specify how we want to recode it following the pattern `"existing value" = "new value"`. So any of the female headed categories I recode into the same new category. Looking into the data I discovered that the "other" household was male headed. But if I was recoding the data without knowing this, it is probably a more sensible move to choose to remove this value using a `filter`.
 
 ```{r chi_q2,exercise=TRUE}
-tabyl1<-BeanSurvey %>%
+BeanSurvey %>%
   mutate(HHTYPE2 = recode(HHTYPE,
                           "Female headed absentee husband"="Female headed",
                           "Female headed, no husband"="Female headed",
@@ -547,7 +555,7 @@ But 'getting data in the appropriate format', 'checking the assumptions for the 
 
 This is, of course, not just true of R but of any analysis software. However with R there is even less of an excuse for doing this since all of the tools needed to prevent it are provided and freely available. This is why we have placed so much emphasis in this course on data manipulation (`dplyr`), exploratory graphics (`ggplot2`) and using a coherent and reproducible workflow (RStudio). 
 
-When doing a PhD, it is also extremely unlikely that a simple hypothesis test will be sufficient for your analysis. It is likely you will need to be doing some statistical modelling, to better explain the patterns and trends in your data. We will learn about this in the next module!
+When doing research in the real world, it is also extremely unlikely that a simple hypothesis test will be sufficient for your analysis. But these are often what you are taught in your statistic modules, because they are the first step into more widely applicable statistical models. It is likely you will need to be doing some statistical modelling, to better explain the patterns and trends in your data. We will learn about this in the next module!
 
 ## Exercises
 
@@ -575,3 +583,33 @@ Tutorial covering all the tests covered in this session in more detail. (Note - 
 https://sbc.shef.ac.uk/workshops/2019-09-18-stats-r/practical.nb.html
 
 
+## Appendix: 'BeanSurvey' dataset 
+
+The data we are using in this session is an extract of a survey conducted in Uganda from farmers identified as growing beans.
+
+The dataset contains an extract of 50 responses to 23 of the survey questions, and has been imported to R as a data frame called `BeanSurvey`.
+
+A summary of the columns in the dataset is below.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+
+
+data.frame(Column=colnames(BeanSurvey),
+           Description=c("Farmer ID","Village name","Household composition","Gender of Household Head","Age of Household Head",
+                         "Occupation of Household Head","Number of Adults within the household","Number of Children (<18) within the household","Do they grow matoke?",
+                         "Do they grow maize?","Do they grow beans?","Do they grow banana?","Do they grow cassava?",
+                         "Do they grow coffee?","Land area of farm (acres)","Labor usage","Intercrops with beans",
+                         "Household decision responsibility","Do they grow beans for sale?","Quantity of beans planted in long rain season",
+                         "Quantity of beans planted in short rain season","Quantity of beans harvested in long rain season"
+                         ,"Quantity of beans harvested in short rain season")) %>% kable()
+
+```
+
+
+Spend some time looking through the exploring the full dataset embedded below, to familiarise yourself with the columns and the type of data stored within each column. You may need to refer back to this data at times during this tutorial. Remember that R is case sensitive, so you will always have to refer to the variables in this dataset exactly as they are written in the data. There is a column in this data called "GENDERHH" but there is no column in this data called "GenderHH".
+
+```{r,echo=FALSE}
+DT::datatable(BeanSurvey)
+```
+
+(You can use the arrow keys on your keyboard to scroll right in case the data table does not fit entirely on your screen)
