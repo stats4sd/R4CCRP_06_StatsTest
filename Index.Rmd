@@ -84,7 +84,7 @@ BeanSurvey %>%
 ```
 
 *Now match embedded output, this time to show histograms and boxplots of `LANDAREA` split by `GENDERHH`*
-**Histograms of Long Rains Yield by VILLAGE**
+**Histograms of Land area by Gender of Head**
 ```{r,echo=FALSE,message=FALSE}
 BeanSurvey %>% 
   ggplot(aes(x=LANDAREA))+
@@ -258,10 +258,10 @@ Probably the most important assumption to consider is whether or not the observa
 A good example of this would be if we were to compare beans planted in the short rains against beans planted in the long rains. We can produce separate histograms or boxplots for the beans being planted in long rains, and beans being planted in short rains, using seperate calls to `ggplot()`. Because they are in different variables we cannot directly map them onto the same plot like we have seen before - we would need to do some additional data manipulation first. We will learn more about that in the final module of the course, which will make it a bit tidier, but producing two separate plots is still an effective way of exploring the data here.  
 
 ```{r pair1,exercise=TRUE ,echo=FALSE}
-ggplot(data=BeanSurvey,x=BEANSPLANTED_LR)+
+ggplot(data=BeanSurvey,aes(x=BEANSPLANTED_LR))+
   geom_histogram()
 
-ggplot(data=BeanSurvey,x=BEANSPLANTED_SR)+
+ggplot(data=BeanSurvey,aes(x=BEANSPLANTED_SR))+
   geom_histogram()
 ```
 
